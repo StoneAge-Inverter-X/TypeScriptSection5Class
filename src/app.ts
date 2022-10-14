@@ -1,102 +1,111 @@
-// interface is for defining  a structure of object. it can be used as type to type check
-
-interface Greetable {
+//6.2 intersection types
+////intersecction 2 custom types
+type Admin = {
   name: string;
-  ////to set name as readonly property:
-  // readonly name: string;
-
-  greet(phrase: string): void;
-}
-
-class Person implements Greetable {
-  name: string;
-  age = 20;
-
-  constructor(n: string) {
-    this.name = n;
-  }
-  greet(phrase: string) {
-    console.log(phrase + this.name);
-  }
-}
-
-// Person can be used as type.
-let user1: Greetable;
-user1 = new Person("Sean");
-user1.greet("hillo00000000 ");
-
-//5.20 extending interface
-interface Named {
-  name: string;
-}
-
-interface GreetPerson extends Named {
-  greet(phrase: string): void;
-}
-
-class ToGreetPerson implements GreetPerson {
-  name: string;
-  constructor(name: string) {
-    this.name = name;
-  }
-  greet(phrase: string) {
-    console.log("hello " + this.name + " " + phrase);
-  }
-}
-
-let aPerson: ToGreetPerson;
-aPerson = new ToGreetPerson("Kong");
-aPerson.greet("goog morning");
-
-//lesson 5.21 interface as funciton type
-//first ,review what is funciton type:
-type AddFn = (a: number, b: number) => number;
-let add: AddFn;
-add = (n1: number, n2: number) => {
-  return n1 + n2;
+  privilege: string[];
 };
 
-//let's do interface as function type
-interface AddTwo {
-  (a: number, b: number): number;
-}
-
-let addFunc: AddTwo;
-addFunc = (n1: number, n2: number) => {
-  return n1 + n2;
+type Empl = {
+  name: string;
+  startDate: Date;
 };
 
-/////lesson 5.21 optional propety and optional parameter:
+type PromotedEmp = Admin & Empl;
 
-interface Dog {
-  name: string;
-  nickName?: string; //?stands for optional
-  greet?(phrase: string): void;
-}
+const e1: PromotedEmp = {
+  name: "sean",
+  privilege: ["sickleave"],
+  startDate: new Date(),
+};
+////intersection with 2 union types
+type Combinded = string | number;
+type Numeric = number | boolean;
+type Universal = Combinded & Numeric;
 
-class Qiwawa implements Dog {
-  name: string;
-  nickName?: string; //in class Qiwawa nickname is optional
+const e2: Universal = 3;
 
-  constructor(n: string, nick?: string) {
-    //nick parmeter is optional , if not exist, nick will = undifined
-    this.name = n;
-    if (nick) {
-      this.nickName = nick;
-    }
-  }
-  greet(phrase: string) {
-    console.log("hello " + this.name + " " + phrase);
-    if (this.nickName) {
-      console.log("your name is also " + " " + this.nickName);
-    }
+//6.3type guard
+type UnkownEmpl = Empl | Admin;
+function printEmp(e: UnkownEmpl) {
+  if ("startDate" in e) {
+    console.log("this guys start date is : ", e.startDate);
+  } else {
+    console.log("this guy is :", e.privilege[0]);
   }
 }
 
-let dog1: Qiwawa;
-dog1 = new Qiwawa("qiqi");
-dog1.greet("good morning");
+const e3: UnkownEmpl = { name: "Sean", privilege: ["able to fly"] };
+printEmp(e3);
+const e4: UnkownEmpl = { name: "Sean", startDate: new Date() };
+printEmp(e4);
 
-let dog2: Qiwawa;
-dog2 = new Qiwawa("jiji", "baba");
-dog2.greet("all the best to you");
+////more type guards
+
+class Car {
+  drive() {
+    console.log("i am driving");
+  }
+  passengers(people: number) {
+    console.log(" i am have these people on board", people);
+  }
+}
+
+class Truck {
+  drive() {
+    console.log("i am driving");
+  }
+
+  load(amount: number) {
+    console.log("i am loading", amount);
+  }
+
+  unloading(amount: number) {
+    console.log("now , i am loading", amount);
+  }
+}
+
+type Vehecal = Car | Truck;
+
+function useVehecal(v: Vehecal) {
+  if (v instanceof Truck) {
+    v.load(100);
+  }
+}
+
+const v1: Vehecal = new Truck();
+useVehecal(v1);
+
+//6.4 discriminated type
+interface Bird {
+  type: "bird";
+  flySpeed: number;
+}
+
+interface Horse {
+  type: "horse";
+  runSpeed: number;
+}
+
+type Animal = Bird | Horse;
+
+function showSpeed(animal: Animal) {
+  let speed: number;
+  switch (animal.type) {
+    case "bird":
+      speed = animal.flySpeed;
+      break;
+    case "horse":
+      speed = animal.runSpeed;
+  }
+  console.log("moving speed is :", speed);
+}
+
+//6.5 type casting: tels TS what type of value it is going to get. like forecasting
+//// 2 ways, this is way 1
+// const userInputElement = <HTMLInputElement>document.getElementById('user-input');
+
+/////way 2 : in react js
+const userInputElement = document.getElementById(
+  "user-input"
+) as HTMLInputElement;
+userInputElement.value = "heelloo htere  !";
