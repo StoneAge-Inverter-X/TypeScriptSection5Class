@@ -1,111 +1,50 @@
-//6.2 intersection types
-////intersecction 2 custom types
-type Admin = {
-  name: string;
-  privilege: string[];
-};
+//7.1 buit in generics and what is generics
+const names: Array<string> = ["sean", "ceo of future"]; // array with string as elements
+///names[0].split(' ');
+/// const names: Array<string| number>= ['sean','ceo of future',38]
 
-type Empl = {
-  name: string;
-  startDate: Date;
-};
+////Promist and string -> to be a generics
+const aPromis: Promise<string> = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("this is done!");
+  }, 2000);
+  if (false) reject("not good");
+}); //// A promise yelds a string as resolve
+aPromis.then((data) => {
+  const datas = data.split(" ");
+  console.log(datas);
+}); //// So TS knows the data is a string, so that the split() is callable.
 
-type PromotedEmp = Admin & Empl;
+//lessson 7.3 creating a generic fucntion and type constrain
+function merge<T extends object, U extends object>(objA: T, objB: U) {
+  return Object.assign(objA, objB);
+} //// the <T extends object, U extends object> tells TS the returned value is intersection of type T and type U
 
-const e1: PromotedEmp = {
-  name: "sean",
-  privilege: ["sickleave"],
-  startDate: new Date(),
-};
-////intersection with 2 union types
-type Combinded = string | number;
-type Numeric = number | boolean;
-type Universal = Combinded & Numeric;
+const mergedObj = merge({ name: "sean" }, { age: 20 });
+console.log(mergedObj.age);
 
-const e2: Universal = 3;
+// lesson 7.5 another generic fucntion
 
-//6.3type guard
-type UnkownEmpl = Empl | Admin;
-function printEmp(e: UnkownEmpl) {
-  if ("startDate" in e) {
-    console.log("this guys start date is : ", e.startDate);
-  } else {
-    console.log("this guy is :", e.privilege[0]);
-  }
+interface Lengthy {
+  length: number;
 }
-
-const e3: UnkownEmpl = { name: "Sean", privilege: ["able to fly"] };
-printEmp(e3);
-const e4: UnkownEmpl = { name: "Sean", startDate: new Date() };
-printEmp(e4);
-
-////more type guards
-
-class Car {
-  drive() {
-    console.log("i am driving");
+// because string and array has length property,so the T can have them as type
+function countAndDesc<T extends Lengthy>(element: T): [T, string] {
+  let desc = "no value";
+  if (element.length === 1) {
+    desc = " got 1 element";
+  } else if (element.length > 1) {
+    desc = " got " + element.length + " element";
   }
-  passengers(people: number) {
-    console.log(" i am have these people on board", people);
-  }
+  return [element, desc];
 }
+console.log(countAndDesc("hello, i am me"));
 
-class Truck {
-  drive() {
-    console.log("i am driving");
-  }
-
-  load(amount: number) {
-    console.log("i am loading", amount);
-  }
-
-  unloading(amount: number) {
-    console.log("now , i am loading", amount);
-  }
+//7.6 the keyof constraint
+function extractAndConvert<T extends object, U extends keyof T>(
+  obj: T,
+  key: U
+) {
+  return "value is " + obj[key];
 }
-
-type Vehecal = Car | Truck;
-
-function useVehecal(v: Vehecal) {
-  if (v instanceof Truck) {
-    v.load(100);
-  }
-}
-
-const v1: Vehecal = new Truck();
-useVehecal(v1);
-
-//6.4 discriminated type
-interface Bird {
-  type: "bird";
-  flySpeed: number;
-}
-
-interface Horse {
-  type: "horse";
-  runSpeed: number;
-}
-
-type Animal = Bird | Horse;
-
-function showSpeed(animal: Animal) {
-  let speed: number;
-  switch (animal.type) {
-    case "bird":
-      speed = animal.flySpeed;
-      break;
-    case "horse":
-      speed = animal.runSpeed;
-  }
-  console.log("moving speed is :", speed);
-}
-
-//6.5 type casting: tels TS what type of value it is going to get. like forecasting
-//// 2 ways, this is way 1
-// const userInputElement = <HTMLInputElement>document.getElementById('user-input');
-
-/////way 2 : in react js
-const userInputElement = document.getElementById(
-  "user-input"
-) as HTMLInputElement;
-userInputElement.value = "heelloo htere  !";
+console.log(extractAndConvert({ name: "sean" }, "name"));
