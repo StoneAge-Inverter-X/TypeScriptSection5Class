@@ -155,3 +155,37 @@ const buttonClickme = document.querySelector("button")!;
 
 ////below is more advanced, using decorater to autobind this to object. Check AutoBindThis for details
 buttonClickme.addEventListener("click", p.showMessage);
+
+//8.12 validation data by using decorators
+//please check the video for more details.
+// function Required() {}
+// function PositiveNumber() {}
+
+class Course {
+  // @Required
+  title: string;
+  // @PositiveNumber
+  price: number;
+  constructor(t: string, p: number) {
+    this.title = t;
+    this.price = p;
+  }
+}
+
+const couseForm = document.getElementById("courseForm")!; // the exlamation mark means: I am sure it exists
+couseForm.addEventListener("submit", (event: Event) => {
+  event.preventDefault();
+  const titleEl = document.getElementById("title") as HTMLInputElement;
+  const priceEl = document.getElementById("price") as HTMLInputElement;
+  const title = titleEl.value;
+  const price = +priceEl.value; // the pluse make the string to number type
+
+  // we could add validation in here:
+  /////if (title.length>0 & price>0 & price<100000 ){
+  ////   const createdCourse = new Course(title, price);
+  // }
+
+  //we could also do the validation by using decorator
+  const createdCourse = new Course(title, price);
+  console.log(createdCourse);
+});
